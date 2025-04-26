@@ -1,0 +1,38 @@
+# Node modules folder ignore karega
+node_modules/
+
+# Local environment files ignore
+.env
+.env.local
+
+# Logs ignore
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# OS specific files ignore
+.DS_Store
+Thumbs.db
+
+# Build output ignore
+dist/
+build/
+
+# IDE/editor settings ignore
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Coverage reports ignore
+coverage/
+
+# Next.js specific (agar use karte ho)
+.next/
+
+# Nuxt.js specific (agar use karte ho)
+.nuxt/
+
+# Temporary files
+*.log
+*.tmp
