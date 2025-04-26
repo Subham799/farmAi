@@ -10,9 +10,9 @@ const PORT = process.env.PORT || 5000;
 app.use(cors());
 app.use(express.json());
 
-const genAI = new GoogleGenerativeAI("AIzaSyDkPqCXAO4wEMziBttDeGjPO33-hpe8D_k");
+const genAI = new GoogleGenerativeAI("YOUR_GEMINI_API_KEY"); // Replace with your API key
 
-// **Define model once here**
+// Define model once
 const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 // API endpoint
@@ -26,15 +26,28 @@ app.post("/api/farmerQuestion", async (req, res) => {
     const response = await result.response;
     const geminiResponseText = response.candidates[0].content.parts[0].text;
 
+    // 💥 SMART: Split the Gemini response into points
+    const points = geminiResponseText
+      .split(/\n|\d+\.\s+/) // Split by newlines or numbered lists (like 1. 2. 3.)
+      .map(p => p.trim())
+      .filter(p => p.length > 0); // Remove empty lines
+
     const matchedPolicy = await matchPolicyWithQuestion(geminiResponseText);
-    res.json({ policy: matchedPolicy });
+
+    // Send both full text and points separately
+    res.json({
+      fullText: geminiResponseText,
+      points: points,
+      policy: matchedPolicy
+    });
+
   } catch (error) {
     console.error("Error processing question:", error);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-// Match policies from TEXT files now
+// Match policies from Texts (Not PDFs now)
 const matchPolicyWithQuestion = async (geminiResponseText) => {
   const policyDir = path.join(__dirname, "policies");
   const policyFiles = fs.readdirSync(policyDir);
@@ -44,7 +57,7 @@ const matchPolicyWithQuestion = async (geminiResponseText) => {
     const filePath = path.join(policyDir, file);
     const fileContent = await readText(filePath);
 
-    if (fileContent.includes(geminiResponseText)) {
+    if (fileContent.toLowerCase().includes(geminiResponseText.toLowerCase())) {
       matchedPolicy = { file, content: fileContent };
       break;
     }
@@ -52,13 +65,13 @@ const matchPolicyWithQuestion = async (geminiResponseText) => {
   return matchedPolicy;
 };
 
-// Read TEXT file
+// Read text file
 const readText = async (filePath) => {
-  return fs.promises.readFile(filePath, 'utf8');
+  const dataBuffer = fs.readFileSync(filePath, 'utf8');
+  return dataBuffer;
 };
 
 // Start Server
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+  console.log(`🚀 Server is running on port ${PORT}`);
 });
-
