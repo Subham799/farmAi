@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Farm AI</title>
+</head>
+<body>
+  <h1>Farm AI - Scheme Recommender</h1>
+  <input type="text" id="questionInput" placeholder="Enter your farming problem">
+  <button onclick="askQuestion()">Get Scheme</button>
+
+  <h2>Recommended Scheme:</h2>
+  <pre id="result"></pre>
+
+  <script>
+    async function askQuestion() {
+      const question = document.getElementById('questionInput').value;
+      const response = await fetch('http://localhost:5000/api/farmerQuestion', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ question })
+      });
+      const data = await response.json();
+      document.getElementById('result').innerText = JSON.stringify(data.policy, null, 2);
+    }
+  </script>
+</body>
+</html>
